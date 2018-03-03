@@ -29,7 +29,7 @@ const oldWizard = {
 // Adapt the entity to work with `updateLocation` with a lens
 const playerLocationLens = lensFromPattern({
   location: {
-    xCoord: 'x',
+    xCoord: 'x', // Binds the value at this path to the 'x' attribute
     yCoord: 'y',
   },
 })
@@ -38,7 +38,7 @@ const playerLocationLens = lensFromPattern({
 const newWizard = over(playerLocationLens, updateLocation, oldWizard)
 
 /*
-newWizard is now
+newWizard is
 {
   type: 'player',
   name: 'al',
@@ -48,6 +48,23 @@ newWizard is now
     yCoord: 7,
   },
 }
+
+
+playerLocationLens is a lens from anything implementing
+{
+  location: {
+    xCoord: any,
+    yCoord: any,
+  },
+}
+
+to
+
+{
+  x: any,
+  y: any,
+}
+
 */
 
 ```

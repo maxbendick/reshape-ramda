@@ -1,5 +1,5 @@
 # reshape-ramda
-Lenses in Ramda made even easier.
+Lenses in JavaScript made even easier.
 
 Install with:
 ```

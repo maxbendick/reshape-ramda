@@ -1,6 +1,11 @@
 # reshape-ramda
 Lenses in Ramda made even easier.
 
+Install with:
+```
+npm install --save reshape-ramda
+```
+
 Lenses can be incredibly helpful, but sometimes syntax and ceremony can get in the way. 
 The goal of Reshape is to rethink how developers create lenses.
 

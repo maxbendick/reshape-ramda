@@ -1,0 +1,21 @@
+{
+  "name": "reshape-ramda",
+  "version": "0.1.0",
+  "description": "Makes lenses easier",
+  "main": "index.js",
+  "author": "Max Bendick",
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src -d dist",
+    "test": "jest src"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "jest": "^22.4.2"
+  },
+  "dependencies": {
+    "ramda": ">=0.16.0"
+  }
+}

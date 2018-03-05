@@ -1,10 +1,12 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // @ts-check
+
+
 var _index = require('./index');
 
 var _ramda = require('ramda');
 
-// @ts-check
 test('paths', function () {
   expect((0, _index.makePaths)({
     a: { b: 'x' },
@@ -174,4 +176,108 @@ test('video game example', function () {
       }
     }
   });
+});
+
+// More usage example than test
+test('Adapt multiple reducers to one state.', function () {
+
+  var createCounterReducer = function createCounterReducer(min, max) {
+    return function (state, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return _extends({}, state, {
+            count: Math.min(state.count + 1, max)
+          });
+
+        case 'DECREMENT':
+          return _extends({}, state, {
+            count: Math.max(state.count - 1, min)
+          });
+
+        case 'SET_COUNTER_NAME':
+          return _extends({}, state, {
+            name: action.name
+          });
+
+        default:
+          return state;
+      }
+    };
+  };
+
+  var numTabs = 3;
+  var counterReducer = createCounterReducer(0, numTabs - 1);
+
+  var tabsReducer = function tabsReducer(state, action) {
+    switch (action.type) {
+      case 'SELECT_TAB':
+        return _extends({}, state, {
+          selected: action.tabNumber
+        });
+
+      case 'SET_TABS_NAME':
+        return _extends({}, state, {
+          name: action.name
+        });
+
+      default:
+        return state;
+    }
+  };
+
+  var defaultState = {
+    selectedTab: 0,
+    tabsName: 'the tabs',
+    counterInfo: {
+      counterName: 'the counter'
+    }
+  };
+
+  var counterLens = (0, _index.lensFromPattern)({
+    counterInfo: {
+      counterName: 'name'
+    },
+    selectedTab: 'count'
+  });
+
+  var tabsLens = (0, _index.lensFromPattern)({
+    tabsName: 'name',
+    selectedTab: 'selected'
+  });
+
+  var appReducer = function appReducer(state, action) {
+
+    var partialCounter = function partialCounter(s) {
+      return counterReducer(s, action);
+    };
+    var partialTabs = function partialTabs(s) {
+      return tabsReducer(s, action);
+    };
+
+    var state1 = (0, _ramda.over)(counterLens, partialCounter, state);
+    var state2 = (0, _ramda.over)(tabsLens, partialTabs, state1);
+    return state2;
+  };
+
+  expect(appReducer(defaultState, { type: 'INCREMENT' })).toEqual(_extends({}, defaultState, {
+    selectedTab: 1
+  }));
+
+  expect(appReducer(defaultState, { type: 'DECREMENT' })).toEqual(_extends({}, defaultState, {
+    selectedTab: 0
+  }));
+
+  expect(appReducer(defaultState, { type: 'SET_COUNTER_NAME', name: 'new name' })).toEqual(_extends({}, defaultState, {
+    counterInfo: {
+      counterName: 'new name'
+    }
+  }));
+
+  expect(appReducer(defaultState, { type: 'SELECT_TAB', tabNumber: 2 })).toEqual(_extends({}, defaultState, {
+    selectedTab: 2
+  }));
+
+  expect(appReducer(defaultState, { type: 'SET_TABS_NAME', name: 'the new tabs name' })).toEqual(_extends({}, defaultState, {
+    tabsName: 'the new tabs name'
+  }));
 });

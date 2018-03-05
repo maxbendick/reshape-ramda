@@ -172,3 +172,111 @@ test('video game example', () => {
     }
   })
 })
+
+// More usage example than test
+test('Adapt multiple reducers to one state.', () => {
+
+  const createCounterReducer = (min, max) => (state, action) => {
+    switch(action.type) {
+      case 'INCREMENT':
+        return {
+          ...state,
+          count: Math.min(state.count + 1, max),
+        }
+
+      case 'DECREMENT':
+        return {
+          ...state,
+          count: Math.max(state.count - 1, min),
+        }
+
+      case 'SET_COUNTER_NAME':
+        return {
+          ...state,
+          name: action.name,
+        }
+
+      default:
+        return state
+    }
+  }
+
+  const numTabs = 3
+  const counterReducer = createCounterReducer(0, numTabs - 1)
+
+  const tabsReducer = (state, action) => {
+    switch(action.type) {
+      case 'SELECT_TAB':
+        return {
+          ...state,
+          selected: action.tabNumber,
+        }
+      
+      case 'SET_TABS_NAME':
+        return {
+          ...state,
+          name: action.name,
+        }
+
+      default:
+        return state
+    }
+  }
+
+  const defaultState = {
+    selectedTab: 0,
+    tabsName: 'the tabs',
+    counterInfo: {
+      counterName: 'the counter',
+    }
+  }
+
+  const counterLens = lensFromPattern({
+    counterInfo:{
+      counterName: 'name'
+    },
+    selectedTab: 'count',
+  })
+
+  const tabsLens = lensFromPattern({
+    tabsName: 'name',
+    selectedTab: 'selected'
+  })
+
+  const appReducer = (state, action) => {
+
+    const partialCounter = s => counterReducer(s, action)
+    const partialTabs =    s => tabsReducer(s, action)
+
+    const state1 = over(counterLens, partialCounter, state)
+    const state2 = over(tabsLens,    partialTabs,    state1)
+    return state2
+  }
+
+  expect(appReducer(defaultState, { type: 'INCREMENT' })).toEqual({
+    ...defaultState,
+    selectedTab: 1,
+  })
+
+  expect(appReducer(defaultState, { type: 'DECREMENT' })).toEqual({
+    ...defaultState,
+    selectedTab: 0,
+  })
+
+  expect(appReducer(defaultState, { type: 'SET_COUNTER_NAME', name: 'new name' })).toEqual({
+    ...defaultState,
+    counterInfo: {
+      counterName: 'new name',
+    },
+  })
+
+  expect(appReducer(defaultState, { type: 'SELECT_TAB', tabNumber: 2 })).toEqual({
+    ...defaultState,
+    selectedTab: 2
+  })
+
+  expect(appReducer(defaultState, { type: 'SET_TABS_NAME', name: 'the new tabs name' })).toEqual({
+    ...defaultState,
+    tabsName: 'the new tabs name',
+  })
+})

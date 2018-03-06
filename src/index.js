@@ -9,10 +9,12 @@ export const makePaths = (pattern, path = []) => {
     let keys = Object.keys(pattern)
     keys.forEach(k => {
       
+      // if value is a string, bind that path to an eponymous attribute
       if (typeof pattern[k] === 'string')
         pathsMap[pattern[k]] = [...path, k]
       
       else if (typeof pattern[k] === 'object')
+        // continue the search at the next node (depth-first-search)
         pathsRec(pattern[k], [...path, k])
       
     })
@@ -28,6 +30,7 @@ export const makeGetter = paths => x => {
   let res = {}
 
   variables.forEach(v => {
+    // set the attribute `v` to the value at the relevant path through `x`
     res[v] = path(paths[v], x)
   })
 
@@ -40,6 +43,7 @@ export const makeSetter = paths => (newInner, oldOutter) => {
   let res = { ...oldOutter }
 
   variables.forEach(v => {
+    // set the value at the relevant path through `res` to the relevant value in `newInner`
     res = assocPath(paths[v], newInner[v], res)
   })
 
